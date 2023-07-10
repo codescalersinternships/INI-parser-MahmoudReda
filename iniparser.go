@@ -9,12 +9,12 @@ import (
 
 var (
 	ErrInvalidFormat        = errors.New("ini file format isn't valid")
-	ErrNoGlobalDataAllowed  = errors.New("Global data isn't supported")
-	ErrInvalidFileExtension = errors.New("File extension isn't valid")
-	ErrEmpytFile            = errors.New("The file is empty")
-	ErrFileNotFound         = errors.New("The system can't find the file")
-	ErrSectionNotFound      = errors.New("Section not found")
-	ErrKeyNotFound          = errors.New("Key not found")
+	ErrNoGlobalDataAllowed  = errors.New("global data isn't supported")
+	ErrInvalidFileExtension = errors.New("file extension isn't valid")
+	ErrEmpytFile            = errors.New("the file is empty")
+	ErrFileNotFound         = errors.New("the system can't find the file")
+	ErrSectionNotFound      = errors.New("section not found")
+	ErrKeyNotFound          = errors.New("key not found")
 )
 
 // Config represents the configuration data stored in an INI file
@@ -28,21 +28,18 @@ func LoadFromString(iniData string) (Config, error) {
 	lines := strings.Split(iniData, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if (line == "" || strings.HasPrefix(line, ";")) && len(lines) == 1 {
-			return nil, ErrEmpytFile
-		}
 		// Ignore empty lines and comments
 		if line == "" || strings.HasPrefix(line, ";") {
 			continue
 		}
 
-		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
+		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") && len(line) > 2 {
 			// Found a section header, create a new section in the config
 			currentSection = line[1 : len(line)-1]
-			//this is allowed?? []
 			config[currentSection] = make(map[string]string)
 		} else {
 			// check if the syntax is not valid
+			// check like this [section or section]
 			if strings.HasPrefix(line, "[") || strings.HasSuffix(line, "]") {
 				return nil, ErrInvalidFormat
 			}
@@ -116,6 +113,7 @@ func Set(config Config, section, key, value string) {
 }
 
 // ToString returns the configuration data as a string representation
+// use String interface Rather than tostring
 func ToString(config Config) string {
 	var lines []string
 	for section, sectionData := range config {

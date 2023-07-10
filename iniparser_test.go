@@ -36,8 +36,11 @@ key2 = value2
 
 	t.Run("invalid format: begin with comment", func(t *testing.T) {
 		iniData := `;comment`
-		_, err := LoadFromString(iniData)
-		assertErr(t, err, ErrEmpytFile)
+		config, err := LoadFromString(iniData)
+		assertNoErr(t, err)
+		if !reflect.DeepEqual(config, nil) {
+			t.Errorf("got %+v, want %+v", config, nil)
+		}
 	})
 
 	t.Run("invalid format: begin with global data", func(t *testing.T) {
